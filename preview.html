@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>재활 홈프로그램 시스템</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+  :root {
+    --primary: #1a5276;
+    --primary-light: #2e86c1;
+    --accent: #1abc9c;
+    --accent-light: #a8e6cf;
+    --bg: #f4f6f9;
+    --white: #ffffff;
+    --border: #dde3ea;
+    --text: #2c3e50;
+    --text-muted: #7f8c8d;
+    --danger: #e74c3c;
+    --warning: #f39c12;
+    --success: #27ae60;
+    --card-shadow: 0 2px 12px rgba(0,0,0,0.07);
+    --radius: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  header {
+    background: var(--primary);
+    color: white;
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  header h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
+  header span { font-size: 12px; opacity: 0.7; font-family: 'DM Mono', monospace; }
+
+  .tab-bar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    padding: 0 32px;
+    gap: 0;
+  }
+  .tab-btn {
+    padding: 14px 24px;
+    border: none;
+    background: none;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab-btn:hover { color: var(--primary); }
+  .tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+    font-weight: 700;
+  }
+
+  .content { padding: 28px 32px; max-width: 1200px; margin: 0 auto; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 10px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    background: var(--white);
+    transition: border-color 0.2s;
+    outline: none;
+  }
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus { border-color: var(--primary-light); }
+  .form-group textarea { resize: vertical; min-height: 80px; }
+
+  .form-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 24px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 16px;
+  }
+  .form-card-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    border-radius: var(--radius);
+    border: none;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--primary-light); }
+  .btn-accent { background: var(--accent); color: white; }
+  .btn-accent:hover { opacity: 0.9; }
+  .btn-outline {
+    background: white;
+    border: 1.5px solid var(--border);
+    color: var(--text);
+  }
+  .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+  .btn-danger { background: var(--danger); color: white; }
+  .btn-danger:hover { opacity: 0.85; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .btn-xs { padding: 4px 8px; font-size: 11px; }
+
+  .btn-row { display: flex; gap: 10px; margin-top: 20px; align-items: center; flex-wrap: wrap; }
+
+  .exercise-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 14px;
+    border-left: 4px solid var(--primary-light);
+    position: relative;
+  }
+  .exercise-card.auto-draft { border-left-color: var(--accent); }
+  .exercise-card.confirmed { border-left-color: var(--success); }
+  .exercise-card.on-hold { border-left-color: var(--warning); opacity: 0.92; }
+  .exercise-card.deleted { display: none; }
+
+  .exercise-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    padding-right: 40px;
+  }
+  .exercise-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary);
+  }
+
+  .exercise-badges { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+  .badge {
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-dept { background: #eaf2fb; color: var(--primary); }
+  .badge-stage { background: #fef9e7; color: #b7770d; }
+  .badge-ai { background: #e8f8f5; color: #1a7a63; }
+  .badge-goal { background: #f0f0f0; color: #555; }
+  .badge-score { background: #eef6f8; color: #2f6f80; }
+
+  .exercise-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 12px 0;
+    font-size: 13px;
+  }
+  .exercise-meta-item { color: var(--text-muted); }
+  .exercise-meta-item strong { color: var(--text); }
+
+  .exercise-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 8px 0;
+    line-height: 1.6;
+  }
+
+  .exercise-img-placeholder {
+    background: var(--bg);
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 12px;
+    margin: 10px 0;
+  }
+
+  .exercise-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 12px;
+  }
+
+  .order-btns {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .order-btn {
+    width: 28px;
+    height: 28px;
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    background: white;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+  }
+  .order-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+  .patient-summary {
+    background: var(--primary);
+    color: white;
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .patient-summary h3 { font-size: 18px; margin-bottom: 10px; }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  .summary-item { font-size: 13px; opacity: 0.85; }
+  .summary-item strong {
+    display: block;
+    opacity: 1;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+
+  .library-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .library-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+  .lib-card {
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 16px;
+    box-shadow: var(--card-shadow);
+    border-top: 3px solid var(--primary-light);
+  }
+  .lib-card-name { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .lib-card-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+  .lib-card-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+  .lib-card-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  .library-filter-select {
+    padding: 8px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 13px;
+    background: white;
+    outline: none;
+  }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: white;
+    border-radius: var(--radius);
+    padding: 28px;
+    width: 560px;
+    max-width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+  }
+  .modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--primary);
+  }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 8px;
+  }
+  .status-confirmed { background: #d5f5e3; color: var(--success); }
+  .status-hold { background: #fef9e7; color: var(--warning); }
+
+  .result-top-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .result-note {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-bottom: 14px;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-state p { font-size: 15px; }
+
+  .radio-group { display: flex; gap: 16px; }
+  .radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    font-weight: 400;
+  }
+
+  .range-group { display: flex; align-items: center; gap: 12px; }
+  .range-val {
+    font-weight: 700;
+    color: var(--primary);
+    min-width: 24px;
+    text-align: center;
+  }
+
+  .print-only { display: none; }
+
+  @media (max-width: 960px) {
+    .form-grid,
+    .summary-grid,
+    .library-grid,
+    .exercise-meta {
+      grid-template-columns: 1fr;
+    }
+    .content { padding: 20px 16px; }
+    header, .tab-bar { padding-left: 16px; padding-right: 16px; }
+  }
+
+  @media print {
+    body { background: white; }
+    header,
+    .tab-bar,
+    .result-top-actions,
+    .exercise-actions,
+    .order-btns,
+    .btn-row,
+    #tab-input,
+    #tab-library,
+    .status-badge {
+      display: none !important;
+    }
+    .content {
+      max-width: none;
+      margin: 0;
+      padding: 0;
+    }
+    #tab-result {
+      display: block !important;
+    }
+    .exercise-card {
+      box-shadow: none;
+      border: 1px solid #ccc;
+      break-inside: avoid;
+    }
+    .patient-summary {
+      background: white !important;
+      color: black !important;
+      border: 1px solid #ccc;
+      margin-bottom: 16px;
+    }
+    .print-only { display: block; }
+    .section-title {
+      border-bottom: 1px solid #999;
+      color: black;
+    }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏥 재활 홈프로그램 시스템</h1>
+  <span>REHAB HOME PROGRAM v1.1</span>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active" data-tab="input" onclick="switchTab('input', this)">① 환자정보 입력</button>
+  <button class="tab-btn" data-tab="result" onclick="switchTab('result', this)">② 추천결과</button>
+  <button class="tab-btn" data-tab="library" onclick="switchTab('library', this)">③ 운동 라이브러리</button>
+</div>
+
+<div class="content">
+
+  <div id="tab-input" class="tab-panel active">
+    <div class="section-title">환자 정보 입력</div>
+
+    <div class="form-card">
+      <div class="form-card-title">기본 정보</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>이름</label>
+          <input type="text" id="p-name" placeholder="예: 최보름" value="최보름" />
+        </div>
+        <div class="form-group">
+          <label>나이</label>
+          <input type="number" id="p-age" placeholder="예: 40" value="40" />
+        </div>
+        <div class="form-group">
+          <label>성별</label>
+          <div class="radio-group" style="margin-top:8px">
+            <label><input type="radio" name="gender" value="여" checked /> 여</label>
+            <label><input type="radio" name="gender" value="남" /> 남</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>치료실 선택</label>
+          <select id="p-dept" onchange="onDeptChange()">
+            <option value="근골격계">근골격계</option>
+            <option value="신경계">신경계</option>
+            <option value="소아">소아</option>
+            <option value="작업치료">작업치료</option>
+            <option value="심장재활">심장재활</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-card-title">임상 정보</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>진단명</label>
+          <input type="text" id="p-diagnosis" placeholder="예: SLAP lesion" value="SLAP lesion" />
+        </div>
+        <div class="form-group">
+          <label>치료 부위</label>
+          <input type="text" id="p-region" placeholder="예: 어깨" value="어깨" />
+        </div>
+        <div class="form-group full">
+          <label>기능 제한</label>
+          <input type="text" id="p-limitation" placeholder="예: flexion 통증 제한" value="flexion 통증 제한" />
+        </div>
+        <div class="form-group">
+          <label>현재 Stage</label>
+          <select id="p-stage">
+            <option value="초기">초기</option>
+            <option value="중기" selected>중기</option>
+            <option value="말기">말기</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>목표</label>
+          <input type="text" id="p-goal" placeholder="예: full ROM 회복" value="full ROM 회복" />
+        </div>
+        <div class="form-group full">
+          <label>통증/피로도 (0~10) &nbsp;<span class="range-val" id="pain-val">3</span></label>
+          <input type="range" id="p-pain" min="0" max="10" value="3" oninput="document.getElementById('pain-val').textContent=this.value" />
+        </div>
+        <div class="form-group full">
+          <label>주의사항</label>
+          <input type="text" id="p-caution" placeholder="예: 통증 유발 범위 제한" value="통증 유발 범위 제한" />
+        </div>
+        <div class="form-group full">
+          <label>치료사 메모</label>
+          <textarea id="p-memo" placeholder="추가 메모를 입력하세요..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="generateRecommendation()">추천 생성</button>
+      <button class="btn btn-outline" onclick="resetForm()">초기화</button>
+      <button class="btn btn-outline" onclick="savePatientDraft()">입력값 저장</button>
+    </div>
+  </div>
+
+  <div id="tab-result" class="tab-panel">
+    <div id="result-content">
+      <div class="empty-state">
+        <div class="icon">📋</div>
+        <p>환자 정보를 입력하고 추천을 생성해주세요.</p>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-library" class="tab-panel">
+    <div class="library-header">
+      <div class="section-title" style="margin:0;border:none">운동 라이브러리</div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <select class="library-filter-select" id="lib-filter" onchange="renderLibrary()">
+          <option value="전체">전체 치료실</option>
+          <option value="근골격계">근골격계</option>
+          <option value="신경계">신경계</option>
+          <option value="소아">소아</option>
+          <option value="작업치료">작업치료</option>
+          <option value="심장재활">심장재활</option>
+        </select>
+        <button class="btn btn-accent" onclick="openAddModal()">+ 운동 추가</button>
+      </div>
+    </div>
+    <div class="library-grid" id="library-grid"></div>
+  </div>
+
+</div>
+
+<!-- 라이브러리 운동 추가/수정 모달 -->
+<div class="modal-overlay" id="exercise-modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">운동 추가</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>운동명</label>
+        <input type="text" id="m-name" placeholder="예: Pendulum Exercise" />
+      </div>
+      <div class="form-group">
+        <label>치료실</label>
+        <select id="m-dept">
+          <option value="근골격계">근골격계</option>
+          <option value="신경계">신경계</option>
+          <option value="소아">소아</option>
+          <option value="작업치료">작업치료</option>
+          <option value="심장재활">심장재활</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>부위</label>
+        <input type="text" id="m-region" placeholder="예: 어깨" />
+      </div>
+      <div class="form-group">
+        <label>Stage</label>
+        <select id="m-stage">
+          <option value="초기">초기</option>
+          <option value="중기">중기</option>
+          <option value="말기">말기</option>
+          <option value="전체">전체</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label>목표 태그 (쉼표 구분)</label>
+        <input type="text" id="m-goals" placeholder="예: ROM 증가, 통증 감소" />
+      </div>
+      <div class="form-group full">
+        <label>설명</label>
+        <textarea id="m-desc" placeholder="운동 방법을 입력하세요..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>권장 횟수/세트</label>
+        <input type="text" id="m-reps" placeholder="예: 10회 3세트" />
+      </div>
+      <div class="form-group">
+        <label>주의사항</label>
+        <input type="text" id="m-caution" placeholder="예: 통증 시 중단" />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('exercise-modal')">취소</button>
+      <button class="btn btn-primary" onclick="saveExercise()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 추천 결과 카드 수정 모달 -->
+<div class="modal-overlay" id="rec-edit-modal">
+  <div class="modal">
+    <div class="modal-title">추천 운동 수정</div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>운동명</label>
+        <input type="text" id="r-name" />
+      </div>
+      <div class="form-group">
+        <label>부위</label>
+        <input type="text" id="r-region" />
+      </div>
+      <div class="form-group">
+        <label>Stage</label>
+        <select id="r-stage">
+          <option value="초기">초기</option>
+          <option value="중기">중기</option>
+          <option value="말기">말기</option>
+          <option value="전체">전체</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>권장 횟수/세트</label>
+        <input type="text" id="r-reps" />
+      </div>
+      <div class="form-group full">
+        <label>목표 태그 (쉼표 구분)</label>
+        <input type="text" id="r-goals" />
+      </div>
+      <div class="form-group full">
+        <label>설명</label>
+        <textarea id="r-desc"></textarea>
+      </div>
+      <div class="form-group full">
+        <label>주의사항</label>
+        <input type="text" id="r-caution" />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="closeModal('rec-edit-modal')">취소</button>
+      <button class="btn btn-primary" onclick="saveRecommendationEdit()">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // =========================
+  // 로컬 스토리지 키
+  // =========================
+  const STORAGE_KEYS = {
+    library: 'rehab_home_program_library_v1_1',
+    patient: 'rehab_home_program_patient_v1_1',
+    recommendations: 'rehab_home_program_recommendations_v1_1'
+  };
+
+  // =========================
+  // 기본 라이브러리
+  // =========================
+  const defaultExerciseLibrary = [
+    { id: 1, name: "Pendulum Exercise", dept: "근골격계", region: "어깨", stage: "초기", goals: ["ROM 증가", "통증 감소"], desc: "상체를 앞으로 숙이고 팔을 자연스럽게 늘어뜨린 후, 중력을 이용해 팔을 원형으로 부드럽게 흔든다.", reps: "원형 10회, 좌우 10회 / 3세트", caution: "통증 시 즉시 중단, 능동적 힘 사용 금지" },
+    { id: 2, name: "Table Slide", dept: "근골격계", region: "어깨", stage: "초기", goals: ["ROM 증가", "굴곡 향상"], desc: "테이블 위에 팔을 올리고 앞으로 미끄러지듯 이동하며 어깨 굴곡 범위를 늘린다.", reps: "10회 / 3세트", caution: "통증 유발 범위 주의" },
+    { id: 3, name: "Wand Assisted Flexion", dept: "근골격계", region: "어깨", stage: "중기", goals: ["능동 보조 ROM", "굴곡 강화"], desc: "막대기를 양손으로 잡고 건측 팔 힘으로 환측 어깨를 앞으로 들어올린다.", reps: "10회 / 3세트", caution: "보상 동작(어깨 으쓱임) 주의" },
+    { id: 4, name: "Scapular Setting", dept: "근골격계", region: "어깨", stage: "초기", goals: ["견갑골 안정화", "자세 교정"], desc: "양쪽 견갑골을 뒤쪽 아래로 모으는 동작을 유지한다.", reps: "10초 유지 × 10회 / 3세트", caution: "과도한 힘 사용 금지" },
+    { id: 5, name: "SLR (Straight Leg Raise)", dept: "근골격계", region: "고관절/허리", stage: "초기", goals: ["대퇴사두근 강화", "고관절 굴곡근 강화"], desc: "누운 자세에서 한쪽 다리를 펴고 30도 정도 들어올려 유지한다.", reps: "10초 유지 × 10회 / 3세트", caution: "허리 과신전 주의" },
+    { id: 6, name: "Terminal Knee Extension", dept: "근골격계", region: "무릎", stage: "중기", goals: ["대퇴사두근 강화", "무릎 신전 강화"], desc: "밴드를 슬괵부에 걸고 서서 무릎을 완전히 펴는 동작을 반복한다.", reps: "15회 / 3세트", caution: "무릎 과신전 주의" },
+    { id: 7, name: "Bridge Exercise", dept: "근골격계", region: "허리/고관절", stage: "초기", goals: ["둔근 강화", "코어 안정화"], desc: "누운 자세에서 무릎을 세우고 엉덩이를 들어올려 일자를 만든다.", reps: "10초 유지 × 10회 / 3세트", caution: "허리 과신전 주의" },
+
+    { id: 8, name: "Sit to Stand", dept: "신경계", region: "하지 전체", stage: "중기", goals: ["기능적 이동", "하지 근력 강화"], desc: "의자 앞쪽에 앉아 무게중심을 앞으로 이동하며 천천히 일어선다.", reps: "10회 / 3세트", caution: "낙상 주의, 필요시 상지 지지" },
+    { id: 9, name: "Weight Shift", dept: "신경계", region: "체간/하지", stage: "초기", goals: ["균형 향상", "체중 이동"], desc: "서거나 앉은 자세에서 좌우로 천천히 체중을 이동한다.", reps: "좌우 각 10회 / 3세트", caution: "균형 상실 시 즉시 지지" },
+    { id: 10, name: "Reaching in Sitting", dept: "신경계", region: "체간/상지", stage: "초기", goals: ["체간 조절", "상지 기능 향상"], desc: "앉은 자세에서 목표물을 향해 팔을 뻗는 동작을 반복한다.", reps: "각 방향 10회 / 3세트", caution: "낙상 주의" },
+    { id: 11, name: "Stepping Exercise", dept: "신경계", region: "하지", stage: "말기", goals: ["보행 준비", "하지 협응"], desc: "제자리에서 발을 들었다 내리는 동작을 반복한다.", reps: "20회 / 3세트", caution: "낙상 주의, 균형 보조 필요시 사용" },
+
+    { id: 12, name: "Crawling", dept: "소아", region: "사지", stage: "초기", goals: ["사지 협응", "체간 조절"], desc: "네발 기기 자세를 유지하며 이동하는 훈련을 한다.", reps: "3~5분", caution: "관절 과부하 주의" },
+    { id: 13, name: "Ball Rolling", dept: "소아", region: "체간", stage: "초기", goals: ["체간 안정화", "균형 발달"], desc: "치료 볼 위에 앉아 전후좌우로 움직이며 균형을 잡는다.", reps: "5분", caution: "낙상 주의, 보호자 동반" },
+
+    { id: 14, name: "Pegboard Task", dept: "작업치료", region: "손/손가락", stage: "초기", goals: ["fine motor", "손가락 협응"], desc: "핀을 구멍에 꽂는 작업을 반복하여 손 정교성을 향상시킨다.", reps: "10분", caution: "과도한 힘 사용 금지" },
+    { id: 15, name: "Buttoning Task", dept: "작업치료", region: "손", stage: "중기", goals: ["ADL 훈련", "손 기능 향상"], desc: "단추 끼우기/풀기 동작으로 일상생활 기능을 훈련한다.", reps: "10회 반복", caution: "피로도 모니터링" },
+
+    { id: 16, name: "Walking Program", dept: "심장재활", region: "전신", stage: "초기", goals: ["심폐 기능 향상", "체력 증진"], desc: "평지에서 적정 속도로 걷기를 시작하여 점진적으로 시간을 늘린다.", reps: "10~20분, 주 3~5회", caution: "목표 심박수 초과 금지, 흉통 시 즉시 중단" },
+    { id: 17, name: "Seated Exercise", dept: "심장재활", region: "상하지", stage: "초기", goals: ["근력 유지", "심폐 기능"], desc: "앉은 자세에서 상하지 움직임을 통해 심폐 기능을 서서히 향상시킨다.", reps: "15분", caution: "과호흡 주의, 심박수 모니터링" }
+  ];
+
+  let exerciseLibrary = loadFromStorage(STORAGE_KEYS.library, defaultExerciseLibrary);
+  let editingId = null;
+  let currentRecommendations = loadFromStorage(STORAGE_KEYS.recommendations, []);
+  let currentPatient = loadFromStorage(STORAGE_KEYS.patient, null);
+  let editingRecommendationIndex = null;
+
+  // =========================
+  // 유틸
+  // =========================
+  function saveToStorage(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  function loadFromStorage(key, fallback) {
+    const raw = localStorage.getItem(key);
+    if (!raw) return fallback;
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return fallback;
+    }
+  }
+
+  function normalizeText(value) {
+    return String(value || '').toLowerCase().replace(/\s+/g, '');
+  }
+
+  function splitKeywords(value) {
+    return String(value || '')
+      .split(/[,\s/]+/)
+      .map(v => v.trim())
+      .filter(Boolean);
+  }
+
+  function switchTab(tab, buttonEl) {
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+
+    document.getElementById('tab-' + tab).classList.add('active');
+
+    if (buttonEl) {
+      buttonEl.classList.add('active');
+    } else {
+      const targetBtn = document.querySelector(`.tab-btn[data-tab="${tab}"]`);
+      if (targetBtn) targetBtn.classList.add('active');
+    }
+
+    if (tab === 'library') renderLibrary();
+    if (tab === 'result' && currentPatient && currentRecommendations.length) {
+      renderResult(currentPatient, currentRecommendations);
+    }
+  }
+
+  // =========================
+  // 환자 데이터
+  // =========================
+  function getPatientData() {
+    return {
+      name: document.getElementById('p-name').value || '이름 없음',
+      age: document.getElementById('p-age').value || '-',
+      gender: document.querySelector('input[name=gender]:checked')?.value || '-',
+      dept: document.getElementById('p-dept').value,
+      diagnosis: document.getElementById('p-diagnosis').value || '-',
+      region: document.getElementById('p-region').value || '-',
+      limitation: document.getElementById('p-limitation').value || '-',
+      stage: document.getElementById('p-stage').value,
+      goal: document.getElementById('p-goal').value || '-',
+      pain: Number(document.getElementById('p-pain').value || 0),
+      caution: document.getElementById('p-caution').value || '-',
+      memo: document.getElementById('p-memo').value || ''
+    };
+  }
+
+  function savePatientDraft() {
+    const patient = getPatientData();
+    currentPatient = patient;
+    saveToStorage(STORAGE_KEYS.patient, patient);
+    alert('입력값이 저장되었습니다.');
+  }
+
+  function fillPatientForm(patient) {
+    if (!patient) return;
+    document.getElementById('p-name').value = patient.name || '';
+    document.getElementById('p-age').value = patient.age || '';
+    const genderRadio = document.querySelector(`input[name="gender"][value="${patient.gender}"]`);
+    if (genderRadio) genderRadio.checked = true;
+    document.getElementById('p-dept').value = patient.dept || '근골격계';
+    document.getElementById('p-diagnosis').value = patient.diagnosis || '';
+    document.getElementById('p-region').value = patient.region || '';
+    document.getElementById('p-limitation').value = patient.limitation || '';
+    document.getElementById('p-stage').value = patient.stage || '초기';
+    document.getElementById('p-goal').value = patient.goal || '';
+    document.getElementById('p-pain').value = patient.pain ?? 3;
+    document.getElementById('pain-val').textContent = patient.pain ?? 3;
+    document.getElementById('p-caution').value = patient.caution || '';
+    document.getElementById('p-memo').value = patient.memo || '';
+  }
+
+  // =========================
+  // 추천 로직
+  // =========================
+  function scoreExercise(exercise, patient) {
+    let score = 0;
+
+    if (exercise.dept === patient.dept) score += 5;
+
+    if (exercise.stage === patient.stage) {
+      score += 3;
+    } else if (exercise.stage === '전체') {
+      score += 2;
+    } else {
+      const stageOrder = { 초기: 1, 중기: 2, 말기: 3 };
+      const diff = Math.abs((stageOrder[exercise.stage] || 0) - (stageOrder[patient.stage] || 0));
+      if (diff === 1) score += 1;
+    }
+
+    const exRegion = normalizeText(exercise.region);
+    const patientRegion = normalizeText(patient.region);
+    if (patientRegion && exRegion.includes(patientRegion)) score += 4;
+    else if (patientRegion && patientRegion.includes(exRegion) && exRegion.length > 0) score += 3;
+
+    const patientGoalKeywords = splitKeywords(patient.goal);
+    const exerciseGoalKeywords = (exercise.goals || []).flatMap(g => splitKeywords(g));
+    patientGoalKeywords.forEach(keyword => {
+      if (exerciseGoalKeywords.some(g => normalizeText(g).includes(normalizeText(keyword)) || normalizeText(keyword).includes(normalizeText(g)))) {
+        score += 2;
+      }
+    });
+
+    const limitationKeywords = splitKeywords(patient.limitation);
+    limitationKeywords.forEach(keyword => {
+      if (normalizeText(exercise.desc).includes(normalizeText(keyword)) || normalizeText(exercise.region).includes(normalizeText(keyword))) {
+        score += 1;
+      }
+    });
+
+    if (patient.pain >= 7) {
+      const lowLoadKeywords = ['통증', '안정화', '보조', '호흡', '가벼운', '중력'];
+      if (lowLoadKeywords.some(k =>
+        normalizeText(exercise.desc).includes(normalizeText(k)) ||
+        (exercise.goals || []).some(g => normalizeText(g).includes(normalizeText(k)))
+      )) {
+        score += 2;
+      }
+    }
+
+    return score;
+  }
+
+  function generateRecommendation() {
+    const patient = getPatientData();
+    currentPatient = patient;
+    saveToStorage(STORAGE_KEYS.patient, patient);
+
+    const deptExercises = exerciseLibrary.filter(e => e.dept === patient.dept);
+
+    const scoredExercises = deptExercises
+      .map(ex => ({
+        ...ex,
+        matchScore: scoreExercise(ex, patient)
+      }))
+      .sort((a, b) => b.matchScore - a.matchScore);
+
+    const picked = scoredExercises.slice(0, 3).map(ex => ({
+      ...ex,
+      status: 'pending',
+      source: 'library'
+    }));
+
+    const aiRecommendation = getMockAIRecommendation(patient);
+
+    currentRecommendations = [
+      ...picked,
+      {
+        ...aiRecommendation,
+        status: 'pending',
+        source: 'auto-draft'
+      }
+    ];
+
+    saveToStorage(STORAGE_KEYS.recommendations, currentRecommendations);
+    renderResult(patient, currentRecommendations);
+    switchTab('result');
+  }
+
+  // =========================
+  // 자동 생성 초안
+  // 실제 Gemini API 연결 시 이 함수 교체
+  // =========================
+  function getMockAIRecommendation(patient) {
+    const commonText = `입력 정보(${patient.region}, ${patient.stage}, 목표: ${patient.goal})를 바탕으로 자동 생성된 초안입니다. 치료사 검토 후 사용하세요.`;
+
+    const mockMap = {
+      '근골격계': {
+        id: Date.now() + 100,
+        name: "등척성 수축 운동",
+        dept: "근골격계",
+        region: patient.region,
+        stage: patient.stage,
+        goals: ["근력 유지", "통증 최소화"],
+        desc: `${commonText} 관절의 큰 움직임 없이 해당 부위 근육을 부드럽게 수축하여 초기 기능 저하를 줄인다.`,
+        reps: "10초 유지 × 10회 / 3세트",
+        caution: "통증 VAS 4 이상 시 중단"
+      },
+      '신경계': {
+        id: Date.now() + 101,
+        name: "과제 지향 훈련",
+        dept: "신경계",
+        region: "전신",
+        stage: patient.stage,
+        goals: ["기능 회복", "반복 연습"],
+        desc: `${commonText} 실제 동작과 유사한 기능 과제를 반복 수행하여 움직임의 질과 참여를 높인다.`,
+        reps: "10~15분",
+        caution: "피로도 및 안전 보조 확인"
+      },
+      '소아': {
+        id: Date.now() + 102,
+        name: "놀이 기반 활동",
+        dept: "소아",
+        region: "전신",
+        stage: patient.stage,
+        goals: ["참여도 향상", "발달 촉진"],
+        desc: `${commonText} 아동의 흥미를 유지할 수 있는 놀이 요소를 포함하여 반복 참여를 유도한다.`,
+        reps: "10~15분",
+        caution: "피로도 및 흥미 저하 관찰"
+      },
+      '작업치료': {
+        id: Date.now() + 103,
+        name: "기능적 과제 연습",
+        dept: "작업치료",
+        region: "상지",
+        stage: patient.stage,
+        goals: ["ADL 향상", "독립성 증진"],
+        desc: `${commonText} 실제 일상생활 맥락에서 손 기능과 조작 능력을 반복 연습한다.`,
+        reps: "10~15분",
+        caution: "보상동작 및 피로도 주의"
+      },
+      '심장재활': {
+        id: Date.now() + 104,
+        name: "저강도 인터벌 활동",
+        dept: "심장재활",
+        region: "전신",
+        stage: patient.stage,
+        goals: ["운동 내성 향상", "심폐 기능"],
+        desc: `${commonText} 짧은 운동과 휴식을 교대로 적용해 부담을 줄이며 점진적으로 내성을 높인다.`,
+        reps: "20분 내외",
+        caution: "목표 심박수 초과 금지"
+      }
+    };
+
+    return mockMap[patient.dept] || mockMap['근골격계'];
+  }
+
+  // =========================
+  // 결과 렌더링
+  // =========================
+  function renderResult(patient, recommendations) {
+    const visibleCount = recommendations.filter(r => r.status !== 'deleted').length;
+    const confirmedCount = recommendations.filter(r => r.status === 'confirmed').length;
+
+    const html = `
+      <div class="print-only" style="margin-bottom:12px;font-size:12px;color:#444;">
+        재활 홈프로그램 출력물 · 치료사 검토 후 제공
+      </div>
+
+      <div class="patient-summary">
+        <h3>👤 ${patient.name} 환자 홈프로그램</h3>
+        <div class="summary-grid">
+          <div class="summary-item"><strong>${patient.age}세 ${patient.gender}</strong>나이/성별</div>
+          <div class="summary-item"><strong>${patient.dept}</strong>치료실</div>
+          <div class="summary-item"><strong>${patient.diagnosis}</strong>진단명</div>
+          <div class="summary-item"><strong>${patient.stage} / 통증 ${patient.pain}/10</strong>단계/통증</div>
+          <div class="summary-item"><strong>${patient.region}</strong>치료 부위</div>
+          <div class="summary-item"><strong>${patient.limitation}</strong>기능 제한</div>
+          <div class="summary-item"><strong>${patient.goal}</strong>목표</div>
+          <div class="summary-item"><strong>${patient.caution}</strong>주의사항</div>
+        </div>
+      </div>
+
+      <div class="result-top-actions">
+        <button class="btn btn-outline btn-sm" onclick="saveCurrentState()">저장</button>
+        <button class="btn btn-outline btn-sm" onclick="printProgram()">인쇄 / PDF 저장</button>
+      </div>
+
+      <div class="result-note">
+        라이브러리 운동은 입력 정보와의 일치도를 기준으로 우선 제시됩니다. 자동 생성 초안은 치료사 검토 후 확정하세요.
+      </div>
+
+      <div class="section-title">추천 운동 (표시 ${visibleCount}개 / 확정 ${confirmedCount}개)</div>
+
+      <div id="rec-list">
+        ${recommendations.map((ex, idx) => renderExerciseCard(ex, idx)).join('')}
+      </div>
+    `;
+
+    document.getElementById('result-content').innerHTML = html;
+  }
+
+  function renderExerciseCard(ex, idx) {
+    if (ex.status === 'deleted') {
+      return `<div id="card-${idx}" class="exercise-card deleted"></div>`;
+    }
+
+    const isAutoDraft = ex.source === 'auto-draft';
+
+    const statusBadge = ex.status === 'confirmed'
+      ? '<span class="status-badge status-confirmed">확정</span>'
+      : ex.status === 'hold'
+      ? '<span class="status-badge status-hold">보류</span>'
+      : '';
+
+    return `
+      <div class="exercise-card ${isAutoDraft ? 'auto-draft' : ''} ${ex.status === 'confirmed' ? 'confirmed' : ''} ${ex.status === 'hold' ? 'on-hold' : ''}" id="card-${idx}">
+        <div class="order-btns">
+          <button class="order-btn" onclick="moveCard(${idx}, -1)">↑</button>
+          <button class="order-btn" onclick="moveCard(${idx}, 1)">↓</button>
+        </div>
+
+        <div class="exercise-card-header">
+          <div>
+            <div class="exercise-name">${ex.name} ${statusBadge}</div>
+            <div class="exercise-badges">
+              <span class="badge badge-dept">${ex.dept}</span>
+              <span class="badge badge-stage">${ex.stage}</span>
+              ${isAutoDraft ? '<span class="badge badge-ai">자동 생성 초안</span>' : ''}
+              ${typeof ex.matchScore === 'number' ? `<span class="badge badge-score">일치도 ${ex.matchScore}</span>` : ''}
+              ${(ex.goals || []).map(g => `<span class="badge badge-goal">${g}</span>`).join('')}
+            </div>
+          </div>
+        </div>
+
+        <div class="exercise-meta">
+          <div class="exercise-meta-item"><strong>부위</strong> ${ex.region}</div>
+          <div class="exercise-meta-item"><strong>횟수</strong> ${ex.reps}</div>
+          <div class="exercise-meta-item"><strong>주의사항</strong> ${ex.caution || '-'}</div>
+          <div class="exercise-meta-item"><strong>출처</strong> ${isAutoDraft ? '자동 생성 초안' : '운동 라이브러리'}</div>
+        </div>
+
+        <div class="exercise-desc">${ex.desc}</div>
+        <div class="exercise-img-placeholder">이미지 / GIF / QR 자리</div>
+
+        <div class="exercise-actions">
+          <button class="btn btn-accent btn-sm" onclick="setStatus(${idx}, 'confirmed')">치료사 확정</button>
+          <button class="btn btn-outline btn-sm" onclick="setStatus(${idx}, 'hold')">보류</button>
+          <button class="btn btn-outline btn-sm" onclick="openRecommendationEditModal(${idx})">수정</button>
+          <button class="btn btn-danger btn-sm" onclick="setStatus(${idx}, 'deleted')">삭제</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function setStatus(idx, status) {
+    currentRecommendations[idx].status = status;
+    saveCurrentState();
+    renderResult(currentPatient, currentRecommendations);
+  }
+
+  function moveCard(idx, direction) {
+    const newIdx = idx + direction;
+    if (newIdx < 0 || newIdx >= currentRecommendations.length) return;
+    [currentRecommendations[idx], currentRecommendations[newIdx]] = [currentRecommendations[newIdx], currentRecommendations[idx]];
+    saveCurrentState();
+    renderResult(currentPatient, currentRecommendations);
+  }
+
+  function printProgram() {
+    window.print();
+  }
+
+  function saveCurrentState() {
+    saveToStorage(STORAGE_KEYS.patient, currentPatient);
+    saveToStorage(STORAGE_KEYS.recommendations, currentRecommendations);
+    saveToStorage(STORAGE_KEYS.library, exerciseLibrary);
+  }
+
+  // =========================
+  // 추천 카드 수정
+  // =========================
+  function openRecommendationEditModal(index) {
+    const ex = currentRecommendations[index];
+    if (!ex) return;
+    editingRecommendationIndex = index;
+
+    document.getElementById('r-name').value = ex.name || '';
+    document.getElementById('r-region').value = ex.region || '';
+    document.getElementById('r-stage').value = ex.stage || '초기';
+    document.getElementById('r-goals').value = (ex.goals || []).join(', ');
+    document.getElementById('r-desc').value = ex.desc || '';
+    document.getElementById('r-reps').value = ex.reps || '';
+    document.getElementById('r-caution').value = ex.caution || '';
+
+    openModal('rec-edit-modal');
+  }
+
+  function saveRecommendationEdit() {
+    if (editingRecommendationIndex === null) return;
+
+    const ex = currentRecommendations[editingRecommendationIndex];
+    ex.name = document.getElementById('r-name').value.trim();
+    ex.region = document.getElementById('r-region').value.trim();
+    ex.stage = document.getElementById('r-stage').value;
+    ex.goals = document.getElementById('r-goals').value.split(',').map(s => s.trim()).filter(Boolean);
+    ex.desc = document.getElementById('r-desc').value.trim();
+    ex.reps = document.getElementById('r-reps').value.trim();
+    ex.caution = document.getElementById('r-caution').value.trim();
+
+    saveCurrentState();
+    closeModal('rec-edit-modal');
+    renderResult(currentPatient, currentRecommendations);
+  }
+
+  // =========================
+  // 라이브러리 렌더링
+  // =========================
+  function renderLibrary() {
+    const filter = document.getElementById('lib-filter').value;
+    const filtered = filter === '전체'
+      ? exerciseLibrary
+      : exerciseLibrary.filter(e => e.dept === filter);
+
+    const grid = document.getElementById('library-grid');
+
+    if (!filtered.length) {
+      grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="icon">🔍</div><p>운동이 없습니다. 추가해보세요!</p></div>';
+      return;
+    }
+
+    grid.innerHTML = filtered.map(ex => `
+      <div class="lib-card">
+        <div class="lib-card-name">${ex.name}</div>
+        <div class="exercise-badges" style="margin-bottom:8px">
+          <span class="badge badge-dept">${ex.dept}</span>
+          <span class="badge badge-stage">${ex.stage}</span>
+          ${(ex.goals || []).map(g => `<span class="badge badge-goal">${g}</span>`).join('')}
+        </div>
+        <div class="lib-card-meta">📍 ${ex.region} | 🔁 ${ex.reps}</div>
+        <div class="lib-card-desc">${ex.desc}</div>
+        <div class="lib-card-actions">
+          <button class="btn btn-outline btn-xs" onclick="openEditModal(${ex.id})">수정</button>
+          <button class="btn btn-danger btn-xs" onclick="deleteExercise(${ex.id})">삭제</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // =========================
+  // 라이브러리 모달
+  // =========================
+  function openModal(id) {
+    document.getElementById(id).classList.add('open');
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+  }
+
+  function openAddModal() {
+    editingId = null;
+    document.getElementById('modal-title').textContent = '운동 추가';
+    ['m-name', 'm-region', 'm-goals', 'm-desc', 'm-reps', 'm-caution'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('m-dept').value = '근골격계';
+    document.getElementById('m-stage').value = '초기';
+    openModal('exercise-modal');
+  }
+
+  function openEditModal(id) {
+    const ex = exerciseLibrary.find(e => e.id === id);
+    if (!ex) return;
+
+    editingId = id;
+    document.getElementById('modal-title').textContent = '운동 수정';
+    document.getElementById('m-name').value = ex.name;
+    document.getElementById('m-dept').value = ex.dept;
+    document.getElementById('m-region').value = ex.region;
+    document.getElementById('m-stage').value = ex.stage;
+    document.getElementById('m-goals').value = (ex.goals || []).join(', ');
+    document.getElementById('m-desc').value = ex.desc;
+    document.getElementById('m-reps').value = ex.reps;
+    document.getElementById('m-caution').value = ex.caution;
+
+    openModal('exercise-modal');
+  }
+
+  function saveExercise() {
+    const ex = {
+      name: document.getElementById('m-name').value.trim(),
+      dept: document.getElementById('m-dept').value,
+      region: document.getElementById('m-region').value.trim(),
+      stage: document.getElementById('m-stage').value,
+      goals: document.getElementById('m-goals').value.split(',').map(s => s.trim()).filter(Boolean),
+      desc: document.getElementById('m-desc').value.trim(),
+      reps: document.getElementById('m-reps').value.trim(),
+      caution: document.getElementById('m-caution').value.trim()
+    };
+
+    if (!ex.name) {
+      alert('운동명을 입력해주세요.');
+      return;
+    }
+
+    if (editingId) {
+      const idx = exerciseLibrary.findIndex(e => e.id === editingId);
+      if (idx >= 0) {
+        exerciseLibrary[idx] = { ...exerciseLibrary[idx], ...ex };
+      }
+    } else {
+      ex.id = Date.now();
+      exerciseLibrary.push(ex);
+    }
+
+    saveToStorage(STORAGE_KEYS.library, exerciseLibrary);
+    closeModal('exercise-modal');
+    renderLibrary();
+  }
+
+  function deleteExercise(id) {
+    if (!confirm('이 운동을 삭제하시겠습니까?')) return;
+    exerciseLibrary = exerciseLibrary.filter(e => e.id !== id);
+    saveToStorage(STORAGE_KEYS.library, exerciseLibrary);
+    renderLibrary();
+  }
+
+  // =========================
+  // 기타
+  // =========================
+  function onDeptChange() {
+    // 필요 시 치료실 변경에 따라 예시값/부위값 동적 변경 가능
+  }
+
+  function resetForm() {
+    document.getElementById('p-name').value = '';
+    document.getElementById('p-age').value = '';
+    document.querySelector('input[name="gender"][value="여"]').checked = true;
+    document.getElementById('p-dept').value = '근골격계';
+    document.getElementById('p-diagnosis').value = '';
+    document.getElementById('p-region').value = '';
+    document.getElementById('p-limitation').value = '';
+    document.getElementById('p-stage').value = '초기';
+    document.getElementById('p-goal').value = '';
+    document.getElementById('p-caution').value = '';
+    document.getElementById('p-memo').value = '';
+    document.getElementById('p-pain').value = 5;
+    document.getElementById('pain-val').textContent = '5';
+  }
+
+  // =========================
+  // 초기화
+  // =========================
+  renderLibrary();
+  fillPatientForm(currentPatient);
+
+  if (currentPatient && currentRecommendations.length) {
+    renderResult(currentPatient, currentRecommendations);
+  }
+</script>
+</body>
+</html>
